@@ -2,9 +2,11 @@ import { ActionIcon, Button, Group, TextInput } from "@mantine/core";
 import { useCallback, useState } from "react";
 import { PlusIcon, MinusIcon, CaretUpIcon, CaretDownIcon } from "@phosphor-icons/react";
 import { nanoid } from "nanoid";
+import type { IRadioOption } from "@/interface/question/radio";
+import { cn } from "@/utils/cn";
 
-export function TemplateRadio() {
-  const [options, setOptions] = useState([
+export function RadioQuestion() {
+  const [options, setOptions] = useState<IRadioOption[]>([
     {
       id: nanoid(),
       value: '',
@@ -60,16 +62,27 @@ export function TemplateRadio() {
   }, [])
 
   return (
-    <div>
+    <div className={
+      cn(
+        'max-w-md',
+        'flex flex-col gap-2.5'
+      )
+    }>
 
       <TextInput
-        label="问题"
-        description="请输入默认问题"
-        placeholder="默认问题"
+        label={`${1} 题目`}
+        withAsterisk
+        description="请输入问题"
+        placeholder="问题"
       />
 
 
-      <div className="max-w-xs">
+      <div className={
+        cn(
+          'max-w-md',
+          'flex flex-col gap-2'
+        )
+      }>
 
         {
           options.map((option, index) => {
@@ -96,10 +109,7 @@ export function TemplateRadio() {
 
 function OptionInput(props: {
   index: number,
-  option: {
-    id: string,
-    value: string,
-  };
+  option: IRadioOption;
   handleAddOption: (index: number) => void;
   handleRemoveOption: (index: number) => void;
   handleUpOption: (index: number) => void;
@@ -112,6 +122,7 @@ function OptionInput(props: {
       <strong>{index + 1}</strong>
       <TextInput
         size="xs"
+
         placeholder={`选项`}
         defaultValue={option.value}
       />
