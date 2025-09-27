@@ -1,6 +1,6 @@
 import { ActionIcon, Button, Group, TextInput } from "@mantine/core";
 import { useCallback, useState } from "react";
-import { PlusIcon, MinusIcon } from "@phosphor-icons/react";
+import { PlusIcon, MinusIcon, CaretUpIcon, CaretDownIcon } from "@phosphor-icons/react";
 import { nanoid } from "nanoid";
 
 export function TemplateRadio() {
@@ -31,7 +31,32 @@ export function TemplateRadio() {
   }, [])
 
   const handleRemoveOption = useCallback((index: number) => {
-    setOptions((prev) => prev.filter((_option, i) => i !== index))
+    setOptions((prev) => {
+      if (prev.length <= 1) return prev; // 至少保留一个选项
+      return prev.filter((_option, i) => i !== index)
+    })
+  }, [])
+
+  const handleUpOption = useCallback((index: number) => {
+    setOptions((prev) => {
+      if (index === 0) return prev;
+      const copyOptions = [...prev]
+      const temp = copyOptions[index]
+      copyOptions[index] = copyOptions[index - 1]
+      copyOptions[index - 1] = temp
+      return copyOptions
+    })
+  }, [])
+
+  const handleDownOption = useCallback((index: number) => {
+    setOptions((prev) => {
+      if (index === prev.length - 1) return prev;
+      const copyOptions = [...prev]
+      const temp = copyOptions[index]
+      copyOptions[index] = copyOptions[index + 1]
+      copyOptions[index + 1] = temp
+      return copyOptions
+    })
   }, [])
 
   return (
@@ -56,6 +81,8 @@ export function TemplateRadio() {
                 option={option}
                 handleAddOption={handleAddOption}
                 handleRemoveOption={handleRemoveOption}
+                handleUpOption={handleUpOption}
+                handleDownOption={handleDownOption}
               />
 
             )
@@ -75,8 +102,10 @@ function OptionInput(props: {
   };
   handleAddOption: (index: number) => void;
   handleRemoveOption: (index: number) => void;
+  handleUpOption: (index: number) => void;
+  handleDownOption: (index: number) => void;
 }) {
-  const { index, option, handleAddOption, handleRemoveOption } = props;
+  const { index, option, handleAddOption, handleRemoveOption, handleUpOption, handleDownOption } = props;
   console.log("option", option)
   return (
     <div className="flex items-center gap-2">
@@ -87,12 +116,12 @@ function OptionInput(props: {
         defaultValue={option.value}
       />
       <div className="flex items-center gap-2">
-        <ActionIcon variant="filled" aria-label="Settings">
-          up
+        <ActionIcon variant="filled" aria-label="Settings" onClick={() => handleUpOption(index)}>
+          <CaretUpIcon />
         </ActionIcon>
 
-        <ActionIcon variant="filled" aria-label="Settings">
-          down
+        <ActionIcon variant="filled" aria-label="Settings" onClick={() => handleDownOption(index)}>
+          <CaretDownIcon />
         </ActionIcon>
 
         <ActionIcon variant="filled" aria-label="Settings" onClick={() => handleAddOption(index)}>
