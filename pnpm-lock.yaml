@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@legendapp/state':
+        specifier: 3.0.0-beta.34
+        version: 3.0.0-beta.34(react@19.1.1)
       '@mantine/core':
         specifier: ^8.3.2
         version: 8.3.2(@mantine/hooks@8.3.2(react@19.1.1))(@types/react@19.1.14)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -491,6 +494,14 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@legendapp/state@3.0.0-beta.34':
+    resolution: {integrity: sha512-XWVKTeTMfQElgc8VewlSA87jxtdq89ewgAv9xF8QNzRjR8eEV+c0mQRq6vt5F7RtMkBwwr0b0Is/njUHUIZgOg==}
+    peerDependencies:
+      expo-sqlite: ^15.0.0
+    peerDependenciesMeta:
+      expo-sqlite:
+        optional: true
 
   '@mantine/core@8.3.2':
     resolution: {integrity: sha512-uIHC9ooEZ9E+/pw8ag4f8pi0GmwSQ1DYnETjr4a4ZNVKJHfVv5NSkjprBxPrKJq9oox/SdcrAWy5XlKTwBzRag==}
@@ -2218,6 +2229,12 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@legendapp/state@3.0.0-beta.34(react@19.1.1)':
+    dependencies:
+      use-sync-external-store: 1.5.0(react@19.1.1)
+    transitivePeerDependencies:
+      - react
 
   '@mantine/core@8.3.2(@mantine/hooks@8.3.2(react@19.1.1))(@types/react@19.1.14)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:

@@ -1,71 +1,62 @@
-import { ActionIcon, Button, Group, TextInput } from "@mantine/core";
-import { useCallback, useState } from "react";
+import { ActionIcon, TextInput } from "@mantine/core";
+import { useCallback, } from "react";
 import { PlusIcon, MinusIcon, CaretUpIcon, CaretDownIcon } from "@phosphor-icons/react";
 import { nanoid } from "nanoid";
-import type { IRadioOption } from "@/interface/question/radio";
+import type { IRadioOption, IRadioQuestionSchema } from "@/interface/question/radio";
 import { cn } from "@/utils/cn";
+import type { Observable } from "@legendapp/state";
+import { Memo, use$ } from "@legendapp/state/react";
 
-export function RadioQuestion() {
-  const [options, setOptions] = useState<IRadioOption[]>([
-    {
-      id: nanoid(),
-      value: '',
-    }
-  ])
+export function RadioQuestion(props: {
+  index?: string;
+  schema$: Observable<IRadioQuestionSchema>;
+}) {
+  const { index, schema$ } = props;
+  console.log("index", index, schema$)
+
+  // const question = use$(schema$.question)
+  // console.log("question", question)
+  const options = use$(schema$.options)
 
   const handleAddOption = useCallback((index: number) => {
-    setOptions((prev) => {
-      const addIndex = index + 1
 
-      console.log("addIndex", addIndex, prev.length + 1)
+    const addIndex = index + 1
 
-      const newOptions = {
-        id: nanoid(),
-        value: `选项${prev.length + 1}`,
-      }
+    const newOptions = {
+      id: nanoid(),
+      value: `选项${options.length + 1}`,
+    }
 
-      const copyOptions = [...prev]
-
-      copyOptions.splice(addIndex, 0, newOptions)
-
-      return copyOptions
-    })
-  }, [])
+    schema$.options.splice(addIndex, 0, newOptions)
+  }, [options])
 
   const handleRemoveOption = useCallback((index: number) => {
-    setOptions((prev) => {
-      if (prev.length <= 1) return prev; // 至少保留一个选项
-      return prev.filter((_option, i) => i !== index)
-    })
-  }, [])
+    if (options.length <= 1) return; // 至少保留一个选项
+    schema$.options.splice(index, 1);
+  }, [options])
 
   const handleUpOption = useCallback((index: number) => {
-    setOptions((prev) => {
-      if (index === 0) return prev;
-      const copyOptions = [...prev]
-      const temp = copyOptions[index]
-      copyOptions[index] = copyOptions[index - 1]
-      copyOptions[index - 1] = temp
-      return copyOptions
-    })
+    if (index === 0) return;
+    const currentOptions = schema$.options.get();
+    const temp = currentOptions[index];
+    schema$.options[index].set(currentOptions[index - 1]);
+    schema$.options[index - 1].set(temp);
   }, [])
 
   const handleDownOption = useCallback((index: number) => {
-    setOptions((prev) => {
-      if (index === prev.length - 1) return prev;
-      const copyOptions = [...prev]
-      const temp = copyOptions[index]
-      copyOptions[index] = copyOptions[index + 1]
-      copyOptions[index + 1] = temp
-      return copyOptions
-    })
-  }, [])
+    if (index === options.length - 1) return;
+    const currentOptions = schema$.options.get();
+    const temp = currentOptions[index];
+    schema$.options[index].set(currentOptions[index + 1]);
+    schema$.options[index + 1].set(temp);
+  }, [options])
 
   return (
     <div className={
       cn(
         'max-w-md',
-        'flex flex-col gap-2.5'
+        'flex flex-col gap-2.5',
+        'px-2 py-4 border-b border-zinc-200 last:border-b-0'
       )
     }>
 
@@ -84,23 +75,28 @@ export function RadioQuestion() {
         )
       }>
 
-        {
-          options.map((option, index) => {
-            return (
 
-              <OptionInput
-                key={option.id}
-                index={index}
-                option={option}
-                handleAddOption={handleAddOption}
-                handleRemoveOption={handleRemoveOption}
-                handleUpOption={handleUpOption}
-                handleDownOption={handleDownOption}
-              />
 
-            )
-          })
-        }
+        <Memo>
+          {
+            () => {
+              return schema$.options.map((option, index) => {
+                const optionValue = option.get()
+                return (
+                  <OptionInput
+                    key={optionValue.id}
+                    index={index}
+                    option={optionValue}
+                    handleAddOption={handleAddOption}
+                    handleRemoveOption={handleRemoveOption}
+                    handleUpOption={handleUpOption}
+                    handleDownOption={handleDownOption}
+                  />
+                )
+              })
+            }
+          }
+        </Memo>
       </div>
 
     </div>
