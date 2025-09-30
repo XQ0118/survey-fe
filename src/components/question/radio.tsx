@@ -1,6 +1,6 @@
 import { ActionIcon, TextInput } from "@mantine/core";
 import { useCallback, } from "react";
-import { PlusIcon, MinusIcon, CaretUpIcon, CaretDownIcon } from "@phosphor-icons/react";
+import { PlusIcon, CaretUpIcon, CaretDownIcon, XIcon, TrashIcon } from "@phosphor-icons/react";
 import { nanoid } from "nanoid";
 import type { IRadioOption, IRadioQuestionSchema } from "@/interface/question/radio";
 import { cn } from "@/utils/cn";
@@ -8,18 +8,14 @@ import type { Observable } from "@legendapp/state";
 import { Memo, use$ } from "@legendapp/state/react";
 
 export function RadioQuestion(props: {
-  index?: string;
+  index: number;
   schema$: Observable<IRadioQuestionSchema>;
 }) {
   const { index, schema$ } = props;
-  console.log("index", index, schema$)
-
-  // const question = use$(schema$.question)
-  // console.log("question", question)
-  const options = use$(schema$.options)
 
   const handleAddOption = useCallback((index: number) => {
-
+    const options = schema$.options.peek()
+    if(options.length >= 99) return;
     const addIndex = index + 1
 
     const newOptions = {
@@ -28,43 +24,51 @@ export function RadioQuestion(props: {
     }
 
     schema$.options.splice(addIndex, 0, newOptions)
-  }, [options])
-
-  const handleRemoveOption = useCallback((index: number) => {
-    if (options.length <= 1) return; // 至少保留一个选项
-    schema$.options.splice(index, 1);
-  }, [options])
-
-  const handleUpOption = useCallback((index: number) => {
-    if (index === 0) return;
-    const currentOptions = schema$.options.get();
-    const temp = currentOptions[index];
-    schema$.options[index].set(currentOptions[index - 1]);
-    schema$.options[index - 1].set(temp);
   }, [])
 
-  const handleDownOption = useCallback((index: number) => {
-    if (index === options.length - 1) return;
-    const currentOptions = schema$.options.get();
-    const temp = currentOptions[index];
-    schema$.options[index].set(currentOptions[index + 1]);
-    schema$.options[index + 1].set(temp);
-  }, [options])
+  const handleRemoveOption = useCallback((id: string) => {
+    const options = schema$.options.peek()
+    const index = options.findIndex(option => option.id === id)
+
+    if (options.length <= 1) return; // 至少保留一个选项
+
+    schema$.options.splice(index, 1);
+  }, [])
+
+  const handleUpOption = useCallback((id: string) => {
+    const options = schema$.options.peek()
+    const index = options.findIndex(option => option.id === id)
+
+    if (index <= 0) return; // 同时处理了 -1 和 0 的情况
+    console.log("handleUpOption:", index, id)
+    const newOptions = [...options];
+    [newOptions[index], newOptions[index - 1]] = [newOptions[index - 1], newOptions[index]];
+    schema$.options.set(newOptions);
+
+  }, [])
+
+  const handleDownOption = useCallback((id: string) => {
+    const options = schema$.options.peek()
+    const index = options.findIndex(option => option.id === id)
+
+    if (index < 0 || index === options.length - 1) return; // 同时处理找不到和已是最后的情况
+    console.log("handleDownOption:", index, id)
+    const newOptions = [...options];
+    [newOptions[index], newOptions[index + 1]] = [newOptions[index + 1], newOptions[index]];
+    schema$.options.set(newOptions);
+  }, [])
 
   return (
     <div className={
       cn(
         'max-w-md',
         'flex flex-col gap-2.5',
-        'px-2 py-4 border-b border-zinc-200 last:border-b-0'
+        'bg-zinc-50 p-2 rounded border-[0.5px] border-zinc-200 shadow-xs',
       )
     }>
-
-      <TextInput
-        label={`${1} 题目`}
-        withAsterisk
-        description="请输入问题"
-        placeholder="问题"
+      <QuestionInput
+        index={index}
+        question$={schema$.question}
       />
 
 
@@ -74,19 +78,16 @@ export function RadioQuestion(props: {
           'flex flex-col gap-2'
         )
       }>
-
-
-
         <Memo>
           {
             () => {
-              return schema$.options.map((option, index) => {
-                const optionValue = option.get()
+              return schema$.options.map((option$, index) => {
+                // 不要在遍历中使用 get 会触发多余依赖，影响性能
                 return (
                   <OptionInput
-                    key={optionValue.id}
+                    key={option$.peek().id}// ✅ peek 不会触发追踪
                     index={index}
-                    option={optionValue}
+                    option$={option$}
                     handleAddOption={handleAddOption}
                     handleRemoveOption={handleRemoveOption}
                     handleUpOption={handleUpOption}
@@ -103,39 +104,78 @@ export function RadioQuestion(props: {
   )
 }
 
+function QuestionInput(props: {
+  index: number,
+  question$: Observable<string>;
+}) {
+  const { index, question$ } = props;
+  const questionValue = use$(question$);
+
+  return (
+    <TextInput
+      label={`${index + 1} 题目`}
+      withAsterisk
+      description="请输入问题"
+      placeholder="问题"
+      value={questionValue}
+      onChange={(e) => { question$.set(e.target.value.trim()) }}
+      rightSection={questionValue && (
+        <XIcon
+          style={{ cursor: 'pointer' }}
+          onClick={() => { question$.set('') }}
+        />
+      )}
+      rightSectionPointerEvents="auto"
+    />
+  )
+}
+
 function OptionInput(props: {
   index: number,
-  option: IRadioOption;
+  option$: Observable<IRadioOption>;
   handleAddOption: (index: number) => void;
-  handleRemoveOption: (index: number) => void;
-  handleUpOption: (index: number) => void;
-  handleDownOption: (index: number) => void;
+  handleRemoveOption: (id: string) => void;
+  handleUpOption: (id: string) => void;
+  handleDownOption: (id: string) => void;
 }) {
-  const { index, option, handleAddOption, handleRemoveOption, handleUpOption, handleDownOption } = props;
-  console.log("option", option)
+  const { index, option$, handleAddOption, handleRemoveOption, handleUpOption, handleDownOption } = props;
+
+  // console.log("option$.value.get()", option$.value.get())
+
+  const optionValue = use$(option$.value);
+  const optionId = use$(option$.id);
   return (
     <div className="flex items-center gap-2">
-      <strong>{index + 1}</strong>
+      <strong className="shrink-0 w-5 text-right">{index + 1}</strong>
+      
       <TextInput
         size="xs"
-
         placeholder={`选项`}
-        defaultValue={option.value}
+        value={optionValue}
+        onChange={(e) => { option$.value.set(e.target.value.trim()) }}
+        rightSection={optionValue && (
+          <XIcon
+            style={{ cursor: 'pointer' }}
+            onClick={() => { option$.value.set('') }}
+          />
+        )}
+        rightSectionPointerEvents="auto"
       />
+
       <div className="flex items-center gap-2">
-        <ActionIcon variant="filled" aria-label="Settings" onClick={() => handleUpOption(index)}>
+        <ActionIcon variant="light" aria-label="Settings" onClick={() => handleUpOption(optionId)}>
           <CaretUpIcon />
         </ActionIcon>
 
-        <ActionIcon variant="filled" aria-label="Settings" onClick={() => handleDownOption(index)}>
+        <ActionIcon variant="light" aria-label="Settings" onClick={() => handleDownOption(optionId)}>
           <CaretDownIcon />
         </ActionIcon>
 
-        <ActionIcon variant="filled" aria-label="Settings" onClick={() => handleAddOption(index)}>
+        <ActionIcon variant="light" aria-label="Settings" onClick={() => handleAddOption(index)}>
           <PlusIcon />
         </ActionIcon>
-        <ActionIcon variant="filled" aria-label="Settings" onClick={() => handleRemoveOption(index)}>
-          <MinusIcon />
+        <ActionIcon variant="light" color="red" aria-label="Settings" onClick={() => handleRemoveOption(optionId)}>
+          <TrashIcon />
         </ActionIcon>
       </div>
     </div>

@@ -9,9 +9,5 @@ export interface ITemplateSchema {
   id: string;
   question: string;
   type: TSchemaType;
-  options: {
-    id: string;
-    value: string;
-  }[];
 }
 
