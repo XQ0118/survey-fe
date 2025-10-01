@@ -1,4 +1,4 @@
-import { Textarea, TextInput } from "@mantine/core";
+import { Textarea,  } from "@mantine/core";
 import { cn } from "@/utils/cn";
 import type { Observable } from "@legendapp/state";
 import { XIcon } from "@phosphor-icons/react";
@@ -43,7 +43,7 @@ function QuestionInput(props: {
   const questionValue = use$(question$);
 
   return (
-    <TextInput
+    <Textarea
       label={`${index + 1} 题目`}
       withAsterisk
       description="请输入问题"

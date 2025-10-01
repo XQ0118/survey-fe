@@ -2,13 +2,14 @@ import { cn } from "@/utils/cn";
 import { EditorCanvas } from "./canvas";
 import { EditorHeader } from "./header";
 import { EditorSide } from "./side";
+import { EditorFooter } from "./footer";
 
 export function EditorContainer() {
   return (
     <main className={
       cn(
+        'max-w-screen-lg mx-auto',
 
-      
         ' ',
       )
     }>
@@ -17,6 +18,7 @@ export function EditorContainer() {
         <EditorSide />
         <EditorCanvas />
       </div>
+      <EditorFooter />
     </main>
   )
 }

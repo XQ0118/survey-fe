@@ -15,12 +15,12 @@ export function RadioQuestion(props: {
 
   const handleAddOption = useCallback((index: number) => {
     const options = schema$.options.peek()
-    if(options.length >= 99) return;
+    if (options.length >= 99) return;
     const addIndex = index + 1
 
     const newOptions = {
       id: nanoid(),
-      value: `选项${options.length + 1}`,
+      value: ``,
     }
 
     schema$.options.splice(addIndex, 0, newOptions)
@@ -40,7 +40,7 @@ export function RadioQuestion(props: {
     const index = options.findIndex(option => option.id === id)
 
     if (index <= 0) return; // 同时处理了 -1 和 0 的情况
-    console.log("handleUpOption:", index, id)
+   
     const newOptions = [...options];
     [newOptions[index], newOptions[index - 1]] = [newOptions[index - 1], newOptions[index]];
     schema$.options.set(newOptions);
@@ -52,7 +52,7 @@ export function RadioQuestion(props: {
     const index = options.findIndex(option => option.id === id)
 
     if (index < 0 || index === options.length - 1) return; // 同时处理找不到和已是最后的情况
-    console.log("handleDownOption:", index, id)
+    
     const newOptions = [...options];
     [newOptions[index], newOptions[index + 1]] = [newOptions[index + 1], newOptions[index]];
     schema$.options.set(newOptions);
@@ -147,10 +147,10 @@ function OptionInput(props: {
   return (
     <div className="flex items-center gap-2">
       <strong className="shrink-0 w-5 text-right">{index + 1}</strong>
-      
+
       <TextInput
         size="xs"
-        placeholder={`选项`}
+        placeholder={`新选项`}
         value={optionValue}
         onChange={(e) => { option$.value.set(e.target.value.trim()) }}
         rightSection={optionValue && (

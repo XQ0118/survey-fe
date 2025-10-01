@@ -1,7 +1,7 @@
 import { cn } from "@/utils/cn";
 import { Button } from "@mantine/core";
 import { PlusIcon } from "@phosphor-icons/react";
-import { questionActions } from "@/components/editor/editor-store";
+import { coreQuestionActions } from "@/components/editor/store/editor-store";
 
 export function EditorSide() {
   return (
@@ -16,7 +16,7 @@ export function EditorSide() {
       <div className="w-fit flex flex-col gap-2">
         <Button className="w-fit" leftSection={<PlusIcon />}
           onClick={() => {
-            questionActions.addQuestion('radio')
+            coreQuestionActions.addQuestion('radio')
           }}
         >
           单选题
@@ -24,7 +24,7 @@ export function EditorSide() {
 
         <Button className="w-fit" leftSection={<PlusIcon />}
           onClick={() => {
-            questionActions.addQuestion('input')
+            coreQuestionActions.addQuestion('input')
           }}
         >
           填空题

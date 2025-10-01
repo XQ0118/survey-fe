@@ -1,13 +1,14 @@
 import { cn } from "@/utils/cn";
 import { ActionIcon } from "@mantine/core";
 import { CaretDownIcon, CaretUpIcon, TrashIcon, } from "@phosphor-icons/react";
-import { questionActions } from "@/components/editor/editor-store";
+import { coreQuestionActions, infoQuestionActions } from "@/components/editor/store/editor-store";
 
 export function QuestionWrapper(props: {
   id: string;
+  type: 'core' | 'info'|string;
   children: React.ReactNode;
 }) {
-  const { id, children } = props;
+  const { id, children, type } = props;
   return (
     <div className={
       cn(
@@ -18,7 +19,7 @@ export function QuestionWrapper(props: {
     }>
       {children}
 
-      <Actions className="group-hover:opacity-100 opacity-0" id={id} />
+      <Actions className="group-hover:opacity-100 opacity-0" id={id} type={type} />
     </div>
   )
 }
@@ -26,9 +27,33 @@ export function QuestionWrapper(props: {
 function Actions(props: {
   className?: string;
   id: string;
+  type: 'core' | 'info'|string;
 }) {
-  const { className, id } = props;
-  console.log("id", id)
+  const { className, id,type } = props;
+ function handleMoveUp() {
+  if (type === 'core') {
+    coreQuestionActions.moveUp(id)
+  } else {
+    infoQuestionActions.moveUp(id)
+  }
+ }
+
+ function handleMoveDown() {
+  if (type === 'core') {
+    coreQuestionActions.moveDown(id)
+  } else {
+    infoQuestionActions.moveDown(id)
+  }
+ }
+
+ function handleRemove() {
+  if (type === 'core') {
+    coreQuestionActions.removeQuestion(id)
+  } else {
+    infoQuestionActions.removeQuestion(id)
+  }
+ }
+ 
   return (
     <div className={
       cn(
@@ -37,15 +62,15 @@ function Actions(props: {
         className,
       )
     }>
-      <ActionIcon variant='default' aria-label="move up" onClick={() => questionActions.moveUp(id)}>
+      <ActionIcon variant='default' aria-label="move up" onClick={handleMoveUp}>
         <CaretUpIcon />
       </ActionIcon>
 
-      <ActionIcon variant="default" aria-label="move down" onClick={() => questionActions.moveDown(id)}>
+      <ActionIcon variant="default" aria-label="move down" onClick={handleMoveDown  }>
         <CaretDownIcon />
       </ActionIcon>
 
-      <ActionIcon variant="outline" color="red" aria-label="remove" onClick={() => questionActions.removeQuestion(id)}>
+      <ActionIcon variant="outline" color="red" aria-label="remove" onClick={handleRemove}>
         <TrashIcon />
       </ActionIcon>
     </div>

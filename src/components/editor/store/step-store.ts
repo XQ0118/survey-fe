@@ -5,18 +5,22 @@ const steps: IStepItem[] = [
   {
     id: '1',
     name: '核心问题',
+    value: 'core',
   },
   {
     id: '2',
     name: '基本信息',
+    value: 'info',
   },
   {
     id: '3',
     name: '调查说明',
+    value: 'description',
   },
   {
     id: '4',
     name: '调查说明',
+    value: 'description',
   }
 ]
 
