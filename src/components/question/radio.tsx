@@ -1,17 +1,21 @@
 import { ActionIcon, TextInput } from "@mantine/core";
-import { useCallback, } from "react";
+import { useCallback, useRef, } from "react";
 import { PlusIcon, CaretUpIcon, CaretDownIcon, XIcon, TrashIcon } from "@phosphor-icons/react";
 import { nanoid } from "nanoid";
-import type { IRadioOption, IRadioQuestionSchema } from "@/interface/question/radio";
+import { type IRadioOption, type IRadioQuestionSchema } from "@/interface/question/radio";
 import { cn } from "@/utils/cn";
 import type { Observable } from "@legendapp/state";
 import { Memo, use$ } from "@legendapp/state/react";
+import { getCoreQuestionPlaceholder, getInfoQuestionPlaceholder } from "@/components/editor/store/editor-store";
 
 export function RadioQuestion(props: {
   index: number;
+  type: 'core' | 'info' | string;
   schema$: Observable<IRadioQuestionSchema>;
 }) {
-  const { index, schema$ } = props;
+  const { index, schema$, type } = props;
+
+  const placeholder = useRef(type === 'core' ? getCoreQuestionPlaceholder() : getInfoQuestionPlaceholder())
 
   const handleAddOption = useCallback((index: number) => {
     const options = schema$.options.peek()
@@ -20,7 +24,7 @@ export function RadioQuestion(props: {
 
     const newOptions = {
       id: nanoid(),
-      value: ``,
+      label: ``,
     }
 
     schema$.options.splice(addIndex, 0, newOptions)
@@ -40,7 +44,7 @@ export function RadioQuestion(props: {
     const index = options.findIndex(option => option.id === id)
 
     if (index <= 0) return; // 同时处理了 -1 和 0 的情况
-   
+
     const newOptions = [...options];
     [newOptions[index], newOptions[index - 1]] = [newOptions[index - 1], newOptions[index]];
     schema$.options.set(newOptions);
@@ -52,7 +56,7 @@ export function RadioQuestion(props: {
     const index = options.findIndex(option => option.id === id)
 
     if (index < 0 || index === options.length - 1) return; // 同时处理找不到和已是最后的情况
-    
+
     const newOptions = [...options];
     [newOptions[index], newOptions[index + 1]] = [newOptions[index + 1], newOptions[index]];
     schema$.options.set(newOptions);
@@ -69,6 +73,7 @@ export function RadioQuestion(props: {
       <QuestionInput
         index={index}
         question$={schema$.question}
+        placeholder={placeholder.current}
       />
 
 
@@ -106,17 +111,18 @@ export function RadioQuestion(props: {
 
 function QuestionInput(props: {
   index: number,
+  placeholder: string;
   question$: Observable<string>;
 }) {
-  const { index, question$ } = props;
+  const { index, placeholder, question$ } = props;
   const questionValue = use$(question$);
 
   return (
     <TextInput
       label={`${index + 1} 题目`}
       withAsterisk
-      description="请输入问题"
-      placeholder="问题"
+      // description="请输入问题"
+      placeholder={placeholder ?? '默认问题'}
       value={questionValue}
       onChange={(e) => { question$.set(e.target.value.trim()) }}
       rightSection={questionValue && (
@@ -140,9 +146,7 @@ function OptionInput(props: {
 }) {
   const { index, option$, handleAddOption, handleRemoveOption, handleUpOption, handleDownOption } = props;
 
-  // console.log("option$.value.get()", option$.value.get())
-
-  const optionValue = use$(option$.value);
+  const optionLabel = use$(option$.label);
   const optionId = use$(option$.id);
   return (
     <div className="flex items-center gap-2">
@@ -151,12 +155,13 @@ function OptionInput(props: {
       <TextInput
         size="xs"
         placeholder={`新选项`}
-        value={optionValue}
-        onChange={(e) => { option$.value.set(e.target.value.trim()) }}
-        rightSection={optionValue && (
+        // defaultValue={optionLabel}
+        value={optionLabel}
+        onChange={(e) => { option$.label.set(e.target.value.trim()) }}
+        rightSection={optionLabel && (
           <XIcon
             style={{ cursor: 'pointer' }}
-            onClick={() => { option$.value.set('') }}
+            onClick={() => { option$.label.set('') }}
           />
         )}
         rightSectionPointerEvents="auto"

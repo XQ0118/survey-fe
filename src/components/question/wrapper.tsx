@@ -5,7 +5,7 @@ import { coreQuestionActions, infoQuestionActions } from "@/components/editor/st
 
 export function QuestionWrapper(props: {
   id: string;
-  type: 'core' | 'info'|string;
+  type?: 'core' | 'info'|string;
   children: React.ReactNode;
 }) {
   const { id, children, type } = props;
@@ -27,7 +27,7 @@ export function QuestionWrapper(props: {
 function Actions(props: {
   className?: string;
   id: string;
-  type: 'core' | 'info'|string;
+  type?: 'core' | 'info'|string;
 }) {
   const { className, id,type } = props;
  function handleMoveUp() {

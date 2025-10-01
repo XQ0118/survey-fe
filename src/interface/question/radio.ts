@@ -3,14 +3,17 @@ import { nanoid } from "nanoid";
 
 export interface IRadioOption {
   id: string;
-  value: string;
-  label?: string;
+  label: string;
+  value?: string;
 }
 
 export interface IRadioQuestionSchema extends ITemplateSchema {
   type: 'radio';
   options: IRadioOption[];
 }
+
+
+
 
 export function initRadioQuestionSchema(): IRadioQuestionSchema {
   return {
@@ -20,7 +23,7 @@ export function initRadioQuestionSchema(): IRadioQuestionSchema {
     options: [
       {
         id: nanoid(),
-        value: '',
+        label: '',
       },
     ],
   }

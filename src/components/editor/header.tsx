@@ -1,6 +1,6 @@
 import { cn } from "@/utils/cn";
-import {   Stepper } from "@mantine/core";
-import {   stepStore$ } from "@/components/editor/store/step-store";
+import { Stepper } from "@mantine/core";
+import { stepStore$ } from "@/components/editor/store/step-store";
 import { use$ } from "@legendapp/state/react";
 
 export function EditorHeader() {
@@ -12,10 +12,8 @@ export function EditorHeader() {
         'py-2 bg-zinc-50 border-b border-zinc-200 shadow-xs',
       )
     }>
-     
-      <Steps />
 
-      
+      <Steps />
     </div>
   )
 }
@@ -25,19 +23,27 @@ function Steps() {
   const steps = use$(stepStore$.steps)
   const current = use$(stepStore$.current)
   return (
-    <Stepper size="xs" active={current} onStepClick={(e) => {
-      console.log(e)
+    <Stepper size="xs" active={current} onStepClick={(index) => {
+      stepStore$.current.set(index)
     }} >
       {
         steps.map((step,) => {
           return (
-            <Stepper.Step key={step.id} label={step.name} description={step.description}>
-              {step.name}
+            <Stepper.Step 
+            key={step.id}
+             label={step.name} 
+             description={step.description}
+             >
+              {/* {step.name} */}
             </Stepper.Step>
           )
         })
       }
-
+      <Stepper.Completed   >
+      <div className="text-center font-medium">
+      完成！
+      </div>
+      </Stepper.Completed>
     </Stepper>
   )
 }

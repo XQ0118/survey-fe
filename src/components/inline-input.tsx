@@ -22,8 +22,6 @@ export function InlineInputPopover({
   const [isComposing, setIsComposing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-
-
   const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setValue(newValue);
@@ -81,19 +79,18 @@ export function InlineInputPopover({
         <Textarea
           ref={textareaRef}
           autosize
-          // value={value}
-          // onChange={handleChange}
+          value={value}
+          onChange={handleChange}
           onCompositionStart={handleCompositionStart}
           onCompositionEnd={handleCompositionEnd}
           placeholder={placeholder}
           minRows={4}
           maxRows={10}
-
+          
         />
         <div className="mt-2 flex justify-end gap-2">
           <Button
             onClick={() => setIsOpen(false)}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
           >
             确定
           </Button>

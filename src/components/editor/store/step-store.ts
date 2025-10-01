@@ -17,37 +17,44 @@ const steps: IStepItem[] = [
     name: '调查说明',
     value: 'description',
   },
-  {
-    id: '4',
-    name: '调查说明',
-    value: 'description',
-  }
+
 ]
 
 export interface IStepStore {
   steps: IStepItem[];
   current: number;
-  currentStep: IStepItem
+  currentStep: () => IStepItem | undefined;
+  isCompleted: () => boolean;
 }
 
 export const stepStore$ = observable<IStepStore>({
   steps: steps,
   current: 0,
-  currentStep: () => {
+  currentStep: (): IStepItem | undefined => {
     return stepStore$.steps.get()[stepStore$.current.get()]
   },
+  isCompleted: (): boolean => {
+    return stepStore$.current.get() === stepStore$.steps.get().length
+  }
 })
 
 export const stepActions = {
-  next: (steps: number = 1) => {
+  prev: (steps: number = 1) => {
     stepStore$.current.set(
       Math.max(0, stepStore$.current.get() - steps)
     )
 
   },
-  prev: (steps: number = 1) => {
+  next: (steps: number = 1) => {
+    console.log("next", Math.min(
+      stepStore$.steps.get().length,
+      stepStore$.current.get() + steps
+    ),)
     stepStore$.current.set(
-      Math.min(stepStore$.steps.get().length - 1, stepStore$.current.get() + steps),
+      Math.min(
+        stepStore$.steps.get().length,
+        stepStore$.current.get() + steps
+      ),
     )
   },
 }

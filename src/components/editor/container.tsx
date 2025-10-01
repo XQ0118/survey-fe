@@ -1,7 +1,7 @@
 import { cn } from "@/utils/cn";
 import { EditorCanvas } from "./canvas";
 import { EditorHeader } from "./header";
-import { EditorSide } from "./side";
+import { EditorAside } from "./aside";
 import { EditorFooter } from "./footer";
 
 export function EditorContainer() {
@@ -15,7 +15,7 @@ export function EditorContainer() {
     }>
       <EditorHeader />
       <div className="grid grid-cols-[auto_1fr] gap-5 px-3">
-        <EditorSide />
+        <EditorAside />
         <EditorCanvas />
       </div>
       <EditorFooter />

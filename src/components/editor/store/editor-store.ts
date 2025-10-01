@@ -1,98 +1,39 @@
 import { initInputQuestionSchema, type IInputQuestionSchema } from "@/interface/question/input";
 import { initRadioQuestionSchema, type IRadioQuestionSchema } from "@/interface/question/radio";
 import type { TSchemaType } from "@/interface/question/schema";
-import { observable, type Observable } from "@legendapp/state";
+import { observable, type Observable,   } from "@legendapp/state";
 
 // 为了更好地了解同学们使用数字设备的情况，用于分析，得出合理建议，提升使用数字设备自我管理意识，特设计此问卷。希望同学们如实填写，感谢大家的积极参与。
 
 export interface IEditorStore {
   questions: (IRadioQuestionSchema | IInputQuestionSchema)[];
   infoQuestions: (IRadioQuestionSchema | IInputQuestionSchema)[];
+  _descriptionValue: string;
+  description: () => string;
 }
 
 export const editorStore$ = observable<IEditorStore>({
   questions: [],
   infoQuestions: [],
+  _descriptionValue: '',
+  description: (): string => {
+    return `为了${editorStore$._descriptionValue.get()}。希望同学们如实填写，感谢大家的积极参与。`
+  },
 })
 
-// export const coreQuestionActions = {
-//   moveUp: (id: string) => {
-//     const questions = editorStore$.questions.peek();
-//     const index = questions.findIndex(question => question.id === id)
-//     console.log("index", id, index)
-//     if (index <= 0) return; // 同时处理了 -1 和 0 的情况
 
 
-//     const newQuestions = [...questions];
-//     [newQuestions[index], newQuestions[index - 1]] = [newQuestions[index - 1], newQuestions[index]];
-//     editorStore$.questions.set(newQuestions);
-//   },
-//   moveDown: (id: string) => {
-//     const questions = editorStore$.questions.peek();
-//     const index = questions.findIndex(question => question.id === id)
-//     if (index < 0 || index === questions.length - 1) return; // 同时处理找不到和已是最后的情况
+ 
 
-
-//     const newQuestions = [...questions];
-//     [newQuestions[index], newQuestions[index + 1]] = [newQuestions[index + 1], newQuestions[index]];
-//     editorStore$.questions.set(newQuestions);
-//   },
-//   addQuestion: (type: TSchemaType) => {
-//     if (type === 'radio') {
-//       editorStore$.questions.push(initRadioQuestionSchema())
-//     } else if (type === 'input') {
-//       editorStore$.questions.push(initInputQuestionSchema())
-//     }
-//   },
-//   removeQuestion: (id: string) => {
-//     const index = editorStore$.questions.findIndex(question$ => question$.peek().id === id)
-//     editorStore$.questions.splice(index, 1)
-//   },
-// }
-
-
-// export const infoQuestionActions = {
-//   moveUp: (id: string) => {
-//     const questions = editorStore$.infoQuestions.peek();
-//     const index = questions.findIndex(question => question.id === id)
-//     console.log("index", id, index)
-//     if (index <= 0) return; // 同时处理了 -1 和 0 的情况
-
-//     const newQuestions = [...questions];
-//     [newQuestions[index], newQuestions[index - 1]] = [newQuestions[index - 1], newQuestions[index]];
-//     editorStore$.infoQuestions.set(newQuestions);
-//   },
-//   moveDown: (id: string) => {
-//     const questions = editorStore$.infoQuestions.peek();
-//     const index = questions.findIndex(question => question.id === id)
-//     if (index < 0 || index === questions.length - 1) return; // 同时处理找不到和已是最后的情况
-
-
-//     const newQuestions = [...questions];
-//     [newQuestions[index], newQuestions[index + 1]] = [newQuestions[index + 1], newQuestions[index]];
-//     editorStore$.infoQuestions.set(newQuestions);
-//   },
-//   addQuestion: (type: TSchemaType) => {
-//     if (type === 'radio') {
-//       editorStore$.infoQuestions.push(initRadioQuestionSchema())
-//     } else if (type === 'input') {
-//       editorStore$.infoQuestions.push(initInputQuestionSchema())
-//     }
-//   },
-//   removeQuestion: (id: string) => {
-//     const index = editorStore$.infoQuestions.findIndex(question$ => question$.peek().id === id)
-//     editorStore$.infoQuestions.splice(index, 1)
-//   },
-// }
-
-
-
-function createQuestionActions(questions$: Observable<(IRadioQuestionSchema | IInputQuestionSchema)[]>) {
+function createQuestionActions(
+  _questionType: 'core' | 'info',
+  questions$: Observable<(IRadioQuestionSchema | IInputQuestionSchema)[]>,
+) {
   return {
     moveUp: (id: string) => {
       const questions = questions$.peek();
       const index = questions.findIndex(question => question.id === id)
-      console.log("index", id, index)
+   
       if (index <= 0) return; // 同时处理了 -1 和 0 的情况
 
       const newQuestions = [...questions];
@@ -123,6 +64,31 @@ function createQuestionActions(questions$: Observable<(IRadioQuestionSchema | II
   }
 }
 
- 
-export const coreQuestionActions = createQuestionActions(editorStore$.questions)
-export const infoQuestionActions = createQuestionActions(editorStore$.infoQuestions)
+
+export const coreQuestionActions = createQuestionActions('core',editorStore$.questions)
+export const infoQuestionActions = createQuestionActions('info',editorStore$.infoQuestions)
+
+
+
+
+const defaultCoreQuestions = [
+  '今天你使用手机的大概时间？',
+  '今天你观看电视的大概时间？',
+  '今天你使用电脑的大概时间？',
+  '今天你使用平板的大概时间？',
+  '今天你使用游戏机的大概时间？',
+]
+
+export function getCoreQuestionPlaceholder() {
+  return defaultCoreQuestions[Math.floor(Math.random() * defaultCoreQuestions.length)]
+}
+
+const defaultInfoQuestions = [
+  '你的性别是？',
+  '你的年龄是？',
+  '现就读的年级？',
+]
+
+export function getInfoQuestionPlaceholder() {
+  return defaultInfoQuestions[Math.floor(Math.random() * defaultInfoQuestions.length)]
+}
